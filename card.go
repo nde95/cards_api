@@ -2,7 +2,10 @@
 
 package deck
 
-import "fmt"
+import (
+	"fmt"
+	"sort"
+)
 
 type Suit uint8
 
@@ -52,7 +55,7 @@ func (c Card) String() string {
 	return fmt.Sprintf("%s of %ss", c.Rank.String(), c.Suit.String())
 }
 
-func NewCard() []Card {
+func NewCard(opts ...func([]Card) []Card) []Card {
 	var cards []Card
 
 	for _, suit := range suits {
@@ -60,5 +63,31 @@ func NewCard() []Card {
 			cards = append(cards, Card{Suit: suit, Rank: rank})
 		}
 	}
+	for _, opt := range opts {
+		cards = opt(cards)
+	}
 	return cards
+}
+
+func DefaultSort (cards []Card) []Card {
+	sort.Slice(cards, Less(cards))
+	return cards
+}
+
+func Sort(less func(cards []Card) func(i, j int) bool) func([]Card) []Card {
+	return func(cards []Card) []Card {
+		sort.Slice(cards, less(cards))
+		return cards
+	}
+}
+
+func Less(cards []Card) func(i, j int) bool { 
+	return func(i, j int) bool {
+		return totalRank(cards[i]) < totalRank(cards[j])
+	}
+}
+
+func totalRank(c Card) int { // get total rank value of card's numeric rank and suit 
+
+	return int(c.Suit) * int(maxRank) + int(c.Rank)
 }
