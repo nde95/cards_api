@@ -69,3 +69,11 @@ func TestFilter(t *testing.T) {
 		}
 	}
 }
+
+func TestDeck(t *testing.T) {
+	cards := NewCard(Deck(3))
+	// 13 card ranks * 4 suits * 3 decks total
+	if len(cards) != 13*4*3 {
+		t.Error("Expected 156 cards, instead returned:", len(cards))
+	}
+}
